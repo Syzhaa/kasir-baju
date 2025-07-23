@@ -10,6 +10,8 @@ export function AppWrapper({ children }) {
   const [members, setMembers] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [cart, setCart] = useState([]);
+  
+  // State untuk autentikasi
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -22,11 +24,11 @@ export function AppWrapper({ children }) {
     let savedUsers = JSON.parse(localStorage.getItem('users')) || [];
     const savedCurrentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
+    // Buat user default jika tidak ada
     if (savedUsers.length === 0) {
-      console.log("Membuat akun admin default...");
       const defaultUsername = 'admin';
       const defaultPassword = 'password';
-      const hashedDefaultPassword = bcrypt.hashSync(defaultPassword, 10);
+      const hashedDefaultPassword = bcrypt.hashSync(defaultPassword, 10); 
       const adminUser = { id: uuidv4(), username: defaultUsername, password: hashedDefaultPassword };
       savedUsers = [adminUser];
       localStorage.setItem('users', JSON.stringify(savedUsers));
@@ -36,6 +38,7 @@ export function AppWrapper({ children }) {
     setMembers(savedMembers);
     setTransactions(savedTransactions);
     setUsers(savedUsers);
+    
     if (savedCurrentUser) {
       setCurrentUser(savedCurrentUser);
     }
@@ -50,12 +53,6 @@ export function AppWrapper({ children }) {
   useEffect(() => { if (!isAuthLoading) localStorage.setItem('currentUser', JSON.stringify(currentUser)); }, [currentUser, isAuthLoading]);
 
   // --- FUNGSI AUTENTIKASI ---
-  const register = async (username, password) => {
-    if (users.find(u => u.username === username)) throw new Error("Username sudah digunakan.");
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = { id: uuidv4(), username, password: hashedPassword };
-    setUsers(prev => [...prev, newUser]);
-  };
   const login = async (username, password) => {
     const user = users.find(u => u.username === username);
     if (!user) throw new Error("Username tidak ditemukan.");
@@ -65,58 +62,36 @@ export function AppWrapper({ children }) {
   };
   const logout = () => setCurrentUser(null);
   const updateProfile = async (userId, newPassword) => {
-    const newHashedPassword = await bcrypt.hash(newPassword, 10);
-    setUsers(users.map(u => u.id === userId ? { ...u, password: newHashedPassword } : u));
+      const newHashedPassword = await bcrypt.hash(newPassword, 10);
+      setUsers(users.map(u => u.id === userId ? { ...u, password: newHashedPassword } : u));
   };
 
-  // --- FUNGSI MANAJEMEN PRODUK ---
+  // --- FUNGSI-FUNGSI LAIN ---
   const addProduct = (product) => setProducts(prev => [...prev, { ...product, id: uuidv4() }]);
   const updateProduct = (updatedProduct) => setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
   const deleteProduct = (productId) => setProducts(products.filter(p => p.id !== productId));
-
-  // --- FUNGSI MANAJEMEN MEMBER ---
   const addMember = (member) => { const newMember = { ...member, id: uuidv4(), discount: Number(member.discount) || 0 }; setMembers(prev => [...prev, newMember]); return newMember; };
   const updateMember = (updatedMember) => setMembers(members.map(m => m.id === updatedMember.id ? { ...updatedMember, discount: Number(updatedMember.discount) || 0 } : m));
   const deleteMember = (memberId) => { if (window.confirm("Yakin hapus member ini?")) { setMembers(prev => prev.filter(m => m.id !== memberId)); } };
-
-  // --- FUNGSI MANAJEMEN TRANSAKSI ---
   const addTransaction = (transactionData) => {
     const { items, member, total, discount } = transactionData;
-    const newTransaction = {
-      id: `TRX-${uuidv4().slice(0, 8)}`,
-      date: new Date().toISOString(),
-      items,
-      memberId: member ? member.id : null,
-      total,
-      discount,
-    };
+    const newTransaction = { id: `TRX-${uuidv4().slice(0, 8)}`, date: new Date().toISOString(), items, memberId: member ? member.id : null, total, discount };
     setTransactions(prev => [...prev, newTransaction]);
     const updatedProducts = [...products];
-    items.forEach(item => {
-      const pIndex = updatedProducts.findIndex(p => p.id === item.productId);
-      if (pIndex !== -1) {
-        updatedProducts[pIndex].stock[item.size] -= item.quantity;
-      }
-    });
+    items.forEach(item => { const pIndex = updatedProducts.findIndex(p => p.id === item.productId); if (pIndex !== -1) { updatedProducts[pIndex].stock[item.size] -= item.quantity; } });
     setProducts(updatedProducts);
     setCart([]);
     return newTransaction;
   };
-  
-  // --- FUNGSI MANAJEMEN KERANJANG ---
   const addToCart = (item) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(ci => ci.productId === item.productId && ci.size === item.size);
-      if (existingItem) {
-        return prevCart.map(ci => ci.productId === item.productId && ci.size === item.size ? { ...ci, quantity: ci.quantity + item.quantity } : ci);
-      }
+      if (existingItem) { return prevCart.map(ci => ci.productId === item.productId && ci.size === item.size ? { ...ci, quantity: ci.quantity + item.quantity } : ci); }
       return [...prevCart, { ...item, cartId: uuidv4() }];
     });
   };
   const removeFromCart = (cartId) => setCart(cart.filter(item => item.cartId !== cartId));
   const clearCart = () => setCart([]);
-
-  // --- FUNGSI MANAJEMEN DATA ---
   const resetData = () => { if (window.confirm("Yakin reset semua data?")) { localStorage.removeItem('products'); localStorage.removeItem('members'); localStorage.removeItem('transactions'); setProducts([]); setMembers([]); setTransactions([]); setCart([]); alert("Data produk, member, dan transaksi berhasil direset."); } };
   const getBackupData = () => JSON.stringify({ products, members, transactions }, null, 2);
   const restoreData = (jsonData) => {
@@ -127,12 +102,8 @@ export function AppWrapper({ children }) {
           setProducts(data.products); setMembers(data.members); setTransactions(data.transactions);
           alert("Data berhasil dipulihkan!");
         }
-      } else {
-        alert("Struktur data file JSON tidak valid.");
-      }
-    } catch (error) {
-      alert("File JSON tidak valid atau rusak.");
-    }
+      } else { alert("Struktur data file JSON tidak valid."); }
+    } catch (error) { alert("File JSON tidak valid atau rusak."); }
   };
 
   const state = {
@@ -142,12 +113,9 @@ export function AppWrapper({ children }) {
     addTransaction,
     addToCart, removeFromCart, clearCart,
     resetData, getBackupData, restoreData,
-    register, login, logout, updateProfile
+    login, logout, updateProfile
   };
 
   return <AppContext.Provider value={state}>{children}</AppContext.Provider>;
 }
-
-export function useAppContext() {
-  return useContext(AppContext);
-}
+export function useAppContext() { return useContext(AppContext); }

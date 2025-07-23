@@ -1,10 +1,11 @@
-// src/components/Sidebar.js
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useAppContext } from '../context/AppContext';
 import styles from '../styles/Sidebar.module.css';
 
 const Sidebar = () => {
   const router = useRouter();
+  const { logout } = useAppContext();
   const getLinkClass = (path) => router.pathname === path ? styles.active : "";
   
   return (
@@ -20,7 +21,10 @@ const Sidebar = () => {
           <Link href="/pengaturan" className={getLinkClass("/pengaturan")}>Pengaturan</Link>
         </nav>
       </div>
-      {/* Bagian profil dan logout dihapus */}
+      <div className={styles.profileSection}>
+        <Link href="/profil" className={getLinkClass("/profil")}>Edit Profil</Link>
+        <button onClick={logout} className={styles.logoutButton}>Logout</button>
+      </div>
     </aside>
   );
 };
