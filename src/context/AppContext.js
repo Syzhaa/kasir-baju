@@ -1,63 +1,89 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcryptjs';
 
 const AppContext = createContext();
 
 export function AppWrapper({ children }) {
+  // State aplikasi
   const [products, setProducts] = useState([]);
   const [members, setMembers] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [cart, setCart] = useState([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-  // Load data dari LocalStorage saat aplikasi pertama kali dibuka
+  // Efek untuk memuat semua data dari LocalStorage
   useEffect(() => {
     const savedProducts = JSON.parse(localStorage.getItem('products')) || [];
     const savedMembers = JSON.parse(localStorage.getItem('members')) || [];
     const savedTransactions = JSON.parse(localStorage.getItem('transactions')) || [];
+    let savedUsers = JSON.parse(localStorage.getItem('users')) || [];
+    const savedCurrentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+    if (savedUsers.length === 0) {
+      console.log("Membuat akun admin default...");
+      const defaultUsername = 'admin';
+      const defaultPassword = 'password';
+      const hashedDefaultPassword = bcrypt.hashSync(defaultPassword, 10);
+      const adminUser = { id: uuidv4(), username: defaultUsername, password: hashedDefaultPassword };
+      savedUsers = [adminUser];
+      localStorage.setItem('users', JSON.stringify(savedUsers));
+    }
+
     setProducts(savedProducts);
     setMembers(savedMembers);
     setTransactions(savedTransactions);
-    setIsLoaded(true);
+    setUsers(savedUsers);
+    if (savedCurrentUser) {
+      setCurrentUser(savedCurrentUser);
+    }
+    setIsAuthLoading(false);
   }, []);
 
-  // Simpan data ke LocalStorage setiap kali ada perubahan
-  useEffect(() => { if (isLoaded) localStorage.setItem('products', JSON.stringify(products)); }, [products, isLoaded]);
-  useEffect(() => { if (isLoaded) localStorage.setItem('members', JSON.stringify(members)); }, [members, isLoaded]);
-  useEffect(() => { if (isLoaded) localStorage.setItem('transactions', JSON.stringify(transactions)); }, [transactions, isLoaded]);
+  // Efek untuk menyimpan data ke LocalStorage
+  useEffect(() => { if (!isAuthLoading) localStorage.setItem('products', JSON.stringify(products)); }, [products, isAuthLoading]);
+  useEffect(() => { if (!isAuthLoading) localStorage.setItem('members', JSON.stringify(members)); }, [members, isAuthLoading]);
+  useEffect(() => { if (!isAuthLoading) localStorage.setItem('transactions', JSON.stringify(transactions)); }, [transactions, isAuthLoading]);
+  useEffect(() => { if (!isAuthLoading) localStorage.setItem('users', JSON.stringify(users)); }, [users, isAuthLoading]);
+  useEffect(() => { if (!isAuthLoading) localStorage.setItem('currentUser', JSON.stringify(currentUser)); }, [currentUser, isAuthLoading]);
 
-  // --- Manajemen Produk ---
-  const addProduct = (product) => {
-    const newProduct = { ...product, id: uuidv4() };
-    setProducts(prev => [...prev, newProduct]);
+  // --- FUNGSI AUTENTIKASI ---
+  const register = async (username, password) => {
+    if (users.find(u => u.username === username)) throw new Error("Username sudah digunakan.");
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = { id: uuidv4(), username, password: hashedPassword };
+    setUsers(prev => [...prev, newUser]);
   };
-  const updateProduct = (updatedProduct) => {
-    setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+  const login = async (username, password) => {
+    const user = users.find(u => u.username === username);
+    if (!user) throw new Error("Username tidak ditemukan.");
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Password salah.");
+    setCurrentUser({ id: user.id, username: user.username });
   };
-  const deleteProduct = (productId) => {
-    setProducts(products.filter(p => p.id !== productId));
-  };
-
-  // --- Manajemen Member ---
-  const addMember = (member) => {
-    const newMember = { ...member, id: uuidv4(), discount: Number(member.discount) || 0 };
-    setMembers(prev => [...prev, newMember]);
-    return newMember;
-  };
-  const updateMember = (updatedMember) => {
-    setMembers(members.map(m => m.id === updatedMember.id ? { ...updatedMember, discount: Number(updatedMember.discount) || 0 } : m));
-  };
-  const deleteMember = (memberId) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus member ini? Riwayat transaksi member ini akan tetap ada.")) {
-      setMembers(prevMembers => prevMembers.filter(m => m.id !== memberId));
-    }
+  const logout = () => setCurrentUser(null);
+  const updateProfile = async (userId, newPassword) => {
+    const newHashedPassword = await bcrypt.hash(newPassword, 10);
+    setUsers(users.map(u => u.id === userId ? { ...u, password: newHashedPassword } : u));
   };
 
-  // --- Manajemen Transaksi ---
+  // --- FUNGSI MANAJEMEN PRODUK ---
+  const addProduct = (product) => setProducts(prev => [...prev, { ...product, id: uuidv4() }]);
+  const updateProduct = (updatedProduct) => setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+  const deleteProduct = (productId) => setProducts(products.filter(p => p.id !== productId));
+
+  // --- FUNGSI MANAJEMEN MEMBER ---
+  const addMember = (member) => { const newMember = { ...member, id: uuidv4(), discount: Number(member.discount) || 0 }; setMembers(prev => [...prev, newMember]); return newMember; };
+  const updateMember = (updatedMember) => setMembers(members.map(m => m.id === updatedMember.id ? { ...updatedMember, discount: Number(updatedMember.discount) || 0 } : m));
+  const deleteMember = (memberId) => { if (window.confirm("Yakin hapus member ini?")) { setMembers(prev => prev.filter(m => m.id !== memberId)); } };
+
+  // --- FUNGSI MANAJEMEN TRANSAKSI ---
   const addTransaction = (transactionData) => {
     const { items, member, total, discount } = transactionData;
     const newTransaction = {
-      id: `TRX-${Date.now()}`,
+      id: `TRX-${uuidv4().slice(0, 8)}`,
       date: new Date().toISOString(),
       items,
       memberId: member ? member.id : null,
@@ -65,22 +91,19 @@ export function AppWrapper({ children }) {
       discount,
     };
     setTransactions(prev => [...prev, newTransaction]);
-    
     const updatedProducts = [...products];
     items.forEach(item => {
-      const productIndex = updatedProducts.findIndex(p => p.id === item.productId);
-      if (productIndex !== -1) {
-        const product = updatedProducts[productIndex];
-        product.stock[item.size] -= item.quantity;
-        updatedProducts[productIndex] = product;
+      const pIndex = updatedProducts.findIndex(p => p.id === item.productId);
+      if (pIndex !== -1) {
+        updatedProducts[pIndex].stock[item.size] -= item.quantity;
       }
     });
     setProducts(updatedProducts);
     setCart([]);
     return newTransaction;
   };
-
-  // --- Manajemen Keranjang ---
+  
+  // --- FUNGSI MANAJEMEN KERANJANG ---
   const addToCart = (item) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(ci => ci.productId === item.productId && ci.size === item.size);
@@ -93,49 +116,33 @@ export function AppWrapper({ children }) {
   const removeFromCart = (cartId) => setCart(cart.filter(item => item.cartId !== cartId));
   const clearCart = () => setCart([]);
 
-  // --- Manajemen Data ---
-  const resetData = () => {
-    if (window.confirm("Apakah Anda yakin ingin mereset semua data? Tindakan ini tidak dapat diurungkan.")) {
-      localStorage.clear();
-      setProducts([]); setMembers([]); setTransactions([]); setCart([]);
-      alert("Semua data berhasil direset.");
-    }
-  };
+  // --- FUNGSI MANAJEMEN DATA ---
+  const resetData = () => { if (window.confirm("Yakin reset semua data?")) { localStorage.removeItem('products'); localStorage.removeItem('members'); localStorage.removeItem('transactions'); setProducts([]); setMembers([]); setTransactions([]); setCart([]); alert("Data produk, member, dan transaksi berhasil direset."); } };
   const getBackupData = () => JSON.stringify({ products, members, transactions }, null, 2);
-
   const restoreData = (jsonData) => {
     try {
       const data = JSON.parse(jsonData);
-      // Validasi sederhana untuk memastikan struktur data benar
       if (Array.isArray(data.products) && Array.isArray(data.members) && Array.isArray(data.transactions)) {
-        
-        // Minta konfirmasi terakhir sebelum menimpa data
         if (window.confirm("Anda yakin ingin mengganti SEMUA data saat ini dengan data dari file? Tindakan ini tidak dapat diurungkan.")) {
-          setProducts(data.products);
-          setMembers(data.members);
-          setTransactions(data.transactions);
-          alert("Data berhasil dipulihkan dari file backup!");
-          return true;
+          setProducts(data.products); setMembers(data.members); setTransactions(data.transactions);
+          alert("Data berhasil dipulihkan!");
         }
       } else {
-        alert("Struktur data di dalam file JSON tidak valid. Pastikan file tersebut adalah file backup yang benar.");
-        return false;
+        alert("Struktur data file JSON tidak valid.");
       }
     } catch (error) {
-      console.error("Gagal mem-parsing file JSON:", error);
-      alert("File JSON tidak valid atau rusak. Gagal memulihkan data.");
-      return false;
+      alert("File JSON tidak valid atau rusak.");
     }
-    return false; // Return false jika user membatalkan konfirmasi
   };
 
   const state = {
-    products, members, transactions, cart, isLoaded,
+    products, members, transactions, cart, currentUser, isAuthenticated: !!currentUser, isAuthLoading,
     addProduct, updateProduct, deleteProduct,
     addMember, updateMember, deleteMember,
     addTransaction,
     addToCart, removeFromCart, clearCart,
     resetData, getBackupData, restoreData,
+    register, login, logout, updateProfile
   };
 
   return <AppContext.Provider value={state}>{children}</AppContext.Provider>;

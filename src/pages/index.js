@@ -114,7 +114,6 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1>Dashboard Penjualan</h1>
       
       {/* Bagian Statistik KPI */}
       <div className={styles.kpiGrid}>

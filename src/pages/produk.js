@@ -20,7 +20,6 @@ export default function ProdukPage() {
 
   return (
     <div>
-      <h1>Manajemen Produk</h1>
       
       {/* 1. Form Tambah/Edit ditampilkan di atas */}
       <div className="card" style={{ marginBottom: '30px' }}>

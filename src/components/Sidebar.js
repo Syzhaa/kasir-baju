@@ -5,35 +5,23 @@ import styles from '../styles/Sidebar.module.css';
 
 const Sidebar = () => {
   const router = useRouter();
-
+  const getLinkClass = (path) => router.pathname === path ? styles.active : "";
+  
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.brand}>
-        <Link href="/">Kasir Toko Baju</Link>
+      <div>
+        <div className={styles.brand}><Link href="/">Kasir Toko Baju</Link></div>
+        <nav className={styles.navLinks}>
+          <Link href="/" className={getLinkClass("/")}>Dashboard</Link>
+          <Link href="/produk" className={getLinkClass("/produk")}>Produk</Link>
+          <Link href="/transaksi" className={getLinkClass("/transaksi")}>Transaksi</Link>
+          <Link href="/member" className={getLinkClass("/member")}>Member</Link>
+          <Link href="/laporan" className={getLinkClass("/laporan")}>Laporan</Link>
+          <Link href="/pengaturan" className={getLinkClass("/pengaturan")}>Pengaturan</Link>
+        </nav>
       </div>
-      <nav className={styles.navLinks}>
-        {/* Link Katalog diubah menjadi Dashboard */}
-        <Link href="/" className={router.pathname === "/" ? styles.active : ""}>
-          Dashboard 
-        </Link>
-        <Link href="/produk" className={router.pathname === "/produk" ? styles.active : ""}>
-          Produk
-        </Link>
-        <Link href="/transaksi" className={router.pathname === "/transaksi" ? styles.active : ""}>
-          Transaksi
-        </Link>
-        <Link href="/member" className={router.pathname === "/member" ? styles.active : ""}>
-          Member
-        </Link>
-        <Link href="/laporan" className={router.pathname === "/laporan" ? styles.active : ""}>
-          Laporan
-        </Link>
-        <Link href="/pengaturan" className={router.pathname === "/pengaturan" ? styles.active : ""}>
-          Pengaturan
-        </Link>
-      </nav>
+      {/* Bagian profil dan logout dihapus */}
     </aside>
   );
 };
-
 export default Sidebar;

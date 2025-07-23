@@ -38,3 +38,27 @@
   padding-left: 20px;
   margin: 0;
 }
+/* Tambahkan ini di paling bawah src/styles/Laporan.module.css */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.pagination button {
+    padding: 8px 16px;
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-weight: 500;
+}

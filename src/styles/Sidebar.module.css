@@ -50,3 +50,37 @@
   color: white;
   font-weight: bold;
 }
+/* Tambahkan ini di paling bawah src/styles/Sidebar.module.css */
+
+.sidebar {
+  justify-content: space-between;
+  /* Mendorong profile section ke bawah */
+}
+
+.profileSection {
+  padding: 15px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profileSection a {
+  text-align: center;
+  padding: 10px;
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s;
+}
+
+.profileSection a:hover {
+  background-color: #f0f2f5;
+}
+
+.logoutButton {
+  width: 100%;
+  background-color: var(--danger-color);
+}
+
+.logoutButton:hover {
+  background-color: #c53030;
+}

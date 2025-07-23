@@ -1,30 +1,35 @@
-/* src/styles/Layout.module.css */
-
 .layoutContainer {
   display: flex;
-  position: relative; /* Diperlukan untuk positioning mobile */
+position: relative;
 }
 
 .sidebarWrapper {
-  /* Ini adalah area untuk Sidebar di Desktop */
-  flex-shrink: 0; /* Mencegah sidebar menyusut */
-  width: 250px; /* Lebar sidebar */
+flex-shrink: 0;
+    width: 250px;
   transition: transform 0.3s ease-in-out;
 }
 
+/* Kelas baru untuk membungkus TopBar & Konten Utama */
+.contentWrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 250px);
+}
 .mainContent {
-  flex-grow: 1; /* Konten utama akan mengambil sisa ruang */
+flex-grow: 1;
   padding: 20px;
-  min-height: 100vh; /* Memastikan konten setidaknya setinggi layar */
+background-color: var(--background-color);
+    margin-top: 70px;
+    /* Memberi ruang kosong setinggi TopBar */
 }
 
-/* Tombol hamburger awalnya disembunyikan di desktop */
 .hamburger {
   display: none;
   position: fixed;
   top: 15px;
   left: 15px;
-  z-index: 1002; /* Harus di atas segalanya kecuali sidebar yang terbuka */
+z-index: 1002;
   background: var(--surface-color);
   color: var(--text-color);
   border: 1px solid var(--border-color);
@@ -32,6 +37,7 @@
   height: 40px;
   font-size: 20px;
   box-shadow: var(--box-shadow);
+border-radius: 50%;
 }
 
 .overlay {
@@ -39,15 +45,15 @@
 }
 
 
-/* -- Gaya untuk Mobile (Responsive) -- */
+/* --- Gaya untuk Mobile (Responsive) --- */
 @media (max-width: 768px) {
   .sidebarWrapper {
-    position: fixed; /* Tetap di layar saat scroll */
+    position: fixed;
     left: 0;
     top: 0;
     height: 100%;
     z-index: 1001;
-    transform: translateX(-100%); /* Sembunyikan ke kiri */
+    transform: translateX(-100%);
     background-color: var(--surface-color);
     box-shadow: 4px 0px 10px rgba(0,0,0,0.1);
   }
@@ -57,8 +63,11 @@
     transform: translateX(0);
   }
 
+  .contentWrapper {
+      width: 100%;
+  }
   .mainContent {
-    padding-top: 70px; /* Beri ruang agar tidak tertutup tombol hamburger */
+    padding: 15px;
   }
 
   /* Tampilkan tombol hamburger di mobile */

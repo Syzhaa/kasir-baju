@@ -51,7 +51,6 @@ export default function PengaturanPage() {
   
   return (
     <div>
-      <h1>Pengaturan & Data</h1>
       <div className="card">
         <h2>Manajemen Data</h2>
         <div className={styles.buttonGroup}>

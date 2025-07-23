@@ -38,7 +38,6 @@ export default function TransaksiPage() {
 
   return (
     <div>
-      <h1>Halaman Transaksi / Kasir</h1>
       <div className={styles.transaksiGrid}>
         <div className={`${styles.productSelection} card`}>
           <h2>Pilih Produk</h2>

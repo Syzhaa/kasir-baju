@@ -23,7 +23,6 @@ export default function MemberPage() {
 
   return (
     <div>
-      <h1>Manajemen Member</h1>
       
       <div className="card" style={{marginBottom: '30px'}}>
         <h2>{editingMember ? `Edit Member: ${editingMember.name}` : 'Daftarkan Member Baru'}</h2>
