@@ -291,23 +291,5 @@ graph TD
 
 ---
 
-💡 **Catatan**: GitHub mendukung sintaks Mermaid secara otomatis dalam file Markdown, jadi Anda dapat melihat visualisasinya langsung saat membuka repositori di GitHub.
-
----
-
-Butuh juga diagram **State Diagram** atau **Sequence Diagram** tambahan untuk bagian login atau cetak struk? Saya bisa bantu buatkan. Mau lanjut? 😊
-
-```
-
----
-
-Jika kamu ingin, saya juga bisa:
-
-- Memecah diagram jadi file `.md` tersendiri
-- Membuat visual statis (gambar PNG/SVG)
-- Menambahkan link langsung ke kode (`AppContext`, `Transaksi`, dll)
-
-Mau lanjut ke bagian itu?
-```
 
 
