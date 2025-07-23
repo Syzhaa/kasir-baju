@@ -1,0 +1,122 @@
+.cartList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.cartItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.cartItem:last-child {
+  border-bottom: none;
+}
+.removeBtn {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 24px;
+  text-align: center;
+}
+
+.summary p {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+.summary .total {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+.summary .discount {
+  color: var(--success-color);
+}
+.summary hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 10px 0;
+}
+
+.customerSection, .memberSearch {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+.memberSearch {
+  position: relative;
+}
+.memberDropdown {
+  position: absolute;
+  width: 100%;
+  background: white;
+  border: 1px solid var(--border-color);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-radius: var(--border-radius);
+  z-index: 10;
+  max-height: 150px;
+  overflow-y: auto;
+}
+.memberDropdown li {
+  padding: 10px;
+  cursor: pointer;
+}
+.memberDropdown li:hover {
+  background: #f0f0f0;
+}
+.selectedMember {
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  padding: 10px;
+  border-radius: var(--border-radius);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.modalContent {
+    width: 90%;
+    max-width: 500px;
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+.checkoutBtn {
+  flex-grow: 1;
+  background-color: var(--success-color);
+}
+.checkoutBtn:hover {
+  background-color: #2f855a;
+}
+.receiptContainer {
+    text-align: center;
+}
+.receiptActions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}

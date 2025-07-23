@@ -1,0 +1,40 @@
+.rekapContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.rekapItem {
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    border-radius: var(--border-radius);
+}
+.rekapItem h3 { margin-top: 0; }
+.rekapItem p { font-size: 1.5em; font-weight: bold; color: var(--success-color); }
+.rekapItem ul { padding-left: 20px; max-height: 150px; overflow-y: auto;}
+
+
+.filterContainer {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+.table th, .table td {
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  text-align: left;
+}
+.table thead {
+  background-color: #f9f9f9;
+}
+.table ul {
+  padding-left: 20px;
+  margin: 0;
+}

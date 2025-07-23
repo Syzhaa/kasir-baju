@@ -1,0 +1,42 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+}
+
+.details {
+  flex-grow: 1;
+}
+
+.details p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.stockInfo {
+  display: flex;
+  gap: 10px;
+  font-size: 0.8em;
+  color: #888;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}

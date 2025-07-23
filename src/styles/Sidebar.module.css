@@ -1,0 +1,52 @@
+/* src/styles/Sidebar.module.css */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Tinggi 100% dari viewport */
+  background-color: var(--surface-color);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  position: sticky; /* Tetap di tempat saat konten di-scroll */
+  top: 0;
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--secondary-color);
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.brand a {
+  color: inherit;
+}
+
+.navLinks {
+  display: flex;
+  flex-direction: column; /* Susun link secara vertikal */
+  gap: 10px; /* Jarak antar link */
+}
+
+.navLinks a {
+  color: var(--text-color);
+  font-weight: 500;
+  padding: 12px 15px;
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.navLinks a:hover {
+  background-color: #f0f2f5; /* Warna hover yang lembut */
+  color: var(--primary-color);
+}
+
+/* Gaya untuk link yang sedang aktif */
+.navLinks a.active {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: bold;
+}

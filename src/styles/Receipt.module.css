@@ -1,0 +1,41 @@
+.receipt {
+  font-family: 'Courier New', Courier, monospace;
+  width: 300px;
+  padding: 15px;
+  margin: 0 auto;
+  background: white;
+  color: black;
+  border: 1px dashed #333;
+}
+
+.receipt h2, .receipt p {
+  text-align: center;
+  margin: 5px 0;
+}
+.receipt hr {
+  border: none;
+  border-top: 1px dashed #333;
+  margin: 10px 0;
+}
+.receipt table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.receipt th, .receipt td {
+  text-align: left;
+  padding: 2px;
+}
+.receipt th:nth-child(2), .receipt td:nth-child(2) { text-align: center; }
+.receipt th:nth-child(3), .receipt td:nth-child(3) { text-align: right; }
+.receipt th:nth-child(4), .receipt td:nth-child(4) { text-align: right; }
+
+.totals {
+  text-align: right;
+}
+.totals p {
+    text-align: right;
+}
+.footer {
+  text-align: center;
+  margin-top: 15px;
+}
