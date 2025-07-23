@@ -1,53 +1,77 @@
 /* src/styles/Dashboard.module.css */
 
-.summaryGrid, .alertsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+/* --- PERUBAHAN DI SINI --- */
+.kpiGrid {
+    display: flex;
+    /* 1. Menggunakan Flexbox */
+    gap: 20px;
+    /* 2. Jarak antar kartu */
+        overflow-x: auto;
+        /* 3. Tambahkan scroll horizontal jika tidak muat */
+        padding-bottom: 15px;
+        /* 4. Beri ruang untuk scrollbar agar tidak mepet */
+        -webkit-overflow-scrolling: touch;
+        /* Scrolling lebih mulus di perangkat mobile */
+        scrollbar-width: thin;
+        /* Scrollbar lebih tipis di Firefox */
 }
 
-.alertsGrid {
-  margin-top: 30px;
+/* Style untuk scrollbar di Chrome/Safari/Edge */
+.kpiGrid::-webkit-scrollbar {
+    height: 6px;
 }
 
-.card {
+.kpiGrid::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+/* Kita atur agar setiap kartu memiliki lebar basis dan bisa membesar */
+.kpiGrid .card {
+    flex: 1 0 200px;
+    /* flex-grow, flex-shrink, flex-basis */
   padding: 20px;
-  border-radius: var(--border-radius);
-  color: white;
-  box-shadow: var(--box-shadow);
+text-align: center;
+    min-width: 200px;
+    /* Pastikan kartu tidak terlalu gepeng saat layar lebar */
 }
+/* -------------------------- */
 
-.card h3 {
+/* Sisa styling kartu tidak perlu diubah, tapi saya sertakan untuk kelengkapan */
+.kpiGrid .card h3 {
   margin-top: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  padding-bottom: 10px;
+font-size: 1em;
+    color: var(--text-color);
+    font-weight: 500;
 }
 
-.card p {
-  font-size: 2em;
+.kpiGrid .card p {
+    font-size: 1.8em;
   font-weight: bold;
   margin: 10px 0 0 0;
-  text-align: right;
+color: var(--primary-color);
 }
 
-.card ul {
-  padding-left: 20px;
-  margin: 10px 0 0 0;
+/* Grid untuk Chart tidak berubah */
+.chartsGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-top: 30px;
 }
 
-.card li {
-  margin-bottom: 8px;
+.chartsGrid .card {
+    padding: 20px;
 }
 
-.card a {
-  color: white;
-  font-weight: bold;
-  text-decoration: underline;
+.chartsGrid .card h3 {
+    margin-top: 0;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-/* Warna Kartu */
-.cardPrimary { background-color: var(--primary-color); }
-.cardSecondary { background-color: #6c757d; }
-.cardSuccess { background-color: var(--success-color); }
-.cardWarning { background-color: #f0ad4e; }
-.cardDanger { background-color: var(--danger-color); }
+@media (max-width: 992px) {
+    .chartsGrid {
+        grid-template-columns: 1fr;
+    }
+}

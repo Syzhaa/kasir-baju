@@ -3,17 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 const AppContext = createContext();
 
-// Model data default
-const initialData = {
-  products: [],
-  members: [],
-  transactions: [],
-};
-
 export function AppWrapper({ children }) {
-  const [products, setProducts] = useState(initialData.products);
-  const [members, setMembers] = useState(initialData.members);
-  const [transactions, setTransactions] = useState(initialData.transactions);
+  const [products, setProducts] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [cart, setCart] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -29,44 +22,40 @@ export function AppWrapper({ children }) {
   }, []);
 
   // Simpan data ke LocalStorage setiap kali ada perubahan
-  useEffect(() => {
-    if(isLoaded) localStorage.setItem('products', JSON.stringify(products));
-  }, [products, isLoaded]);
+  useEffect(() => { if (isLoaded) localStorage.setItem('products', JSON.stringify(products)); }, [products, isLoaded]);
+  useEffect(() => { if (isLoaded) localStorage.setItem('members', JSON.stringify(members)); }, [members, isLoaded]);
+  useEffect(() => { if (isLoaded) localStorage.setItem('transactions', JSON.stringify(transactions)); }, [transactions, isLoaded]);
 
-  useEffect(() => {
-    if(isLoaded) localStorage.setItem('members', JSON.stringify(members));
-  }, [members, isLoaded]);
-
-  useEffect(() => {
-    if(isLoaded) localStorage.setItem('transactions', JSON.stringify(transactions));
-  }, [transactions, isLoaded]);
-
-  // Fungsi Manajemen Produk
+  // --- Manajemen Produk ---
   const addProduct = (product) => {
     const newProduct = { ...product, id: uuidv4() };
-    setProducts([...products, newProduct]);
+    setProducts(prev => [...prev, newProduct]);
   };
-
   const updateProduct = (updatedProduct) => {
     setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
   };
-
   const deleteProduct = (productId) => {
     setProducts(products.filter(p => p.id !== productId));
   };
 
-  // Fungsi Manajemen Member
+  // --- Manajemen Member ---
   const addMember = (member) => {
-    const newMember = { ...member, id: uuidv4() };
-    setMembers([...members, newMember]);
+    const newMember = { ...member, id: uuidv4(), discount: Number(member.discount) || 0 };
+    setMembers(prev => [...prev, newMember]);
     return newMember;
   };
-  
-  // Fungsi Manajemen Transaksi
+  const updateMember = (updatedMember) => {
+    setMembers(members.map(m => m.id === updatedMember.id ? { ...updatedMember, discount: Number(updatedMember.discount) || 0 } : m));
+  };
+  const deleteMember = (memberId) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus member ini? Riwayat transaksi member ini akan tetap ada.")) {
+      setMembers(prevMembers => prevMembers.filter(m => m.id !== memberId));
+    }
+  };
+
+  // --- Manajemen Transaksi ---
   const addTransaction = (transactionData) => {
     const { items, member, total, discount } = transactionData;
-    
-    // 1. Buat transaksi baru
     const newTransaction = {
       id: `TRX-${Date.now()}`,
       date: new Date().toISOString(),
@@ -77,81 +66,76 @@ export function AppWrapper({ children }) {
     };
     setTransactions(prev => [...prev, newTransaction]);
     
-    // 2. Kurangi stok produk
     const updatedProducts = [...products];
     items.forEach(item => {
       const productIndex = updatedProducts.findIndex(p => p.id === item.productId);
-      if(productIndex !== -1) {
+      if (productIndex !== -1) {
         const product = updatedProducts[productIndex];
         product.stock[item.size] -= item.quantity;
         updatedProducts[productIndex] = product;
       }
     });
     setProducts(updatedProducts);
-
-    // 3. Kosongkan keranjang
     setCart([]);
     return newTransaction;
   };
 
-  // Fungsi Manajemen Keranjang (Cart)
+  // --- Manajemen Keranjang ---
   const addToCart = (item) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(
-        cartItem => cartItem.productId === item.productId && cartItem.size === item.size
-      );
+      const existingItem = prevCart.find(ci => ci.productId === item.productId && ci.size === item.size);
       if (existingItem) {
-        return prevCart.map(cartItem =>
-          cartItem.productId === item.productId && cartItem.size === item.size
-            ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
-            : cartItem
-        );
+        return prevCart.map(ci => ci.productId === item.productId && ci.size === item.size ? { ...ci, quantity: ci.quantity + item.quantity } : ci);
       }
       return [...prevCart, { ...item, cartId: uuidv4() }];
     });
   };
-  
-  const removeFromCart = (cartId) => {
-    setCart(cart.filter(item => item.cartId !== cartId));
-  };
-
+  const removeFromCart = (cartId) => setCart(cart.filter(item => item.cartId !== cartId));
   const clearCart = () => setCart([]);
 
-  // Fungsi Reset & Backup
+  // --- Manajemen Data ---
   const resetData = () => {
     if (window.confirm("Apakah Anda yakin ingin mereset semua data? Tindakan ini tidak dapat diurungkan.")) {
-      localStorage.removeItem('products');
-      localStorage.removeItem('members');
-      localStorage.removeItem('transactions');
-      setProducts([]);
-      setMembers([]);
-      setTransactions([]);
-      setCart([]);
+      localStorage.clear();
+      setProducts([]); setMembers([]); setTransactions([]); setCart([]);
       alert("Semua data berhasil direset.");
     }
   };
+  const getBackupData = () => JSON.stringify({ products, members, transactions }, null, 2);
 
-  const getBackupData = () => {
-    return JSON.stringify({ products, members, transactions }, null, 2);
+  const restoreData = (jsonData) => {
+    try {
+      const data = JSON.parse(jsonData);
+      // Validasi sederhana untuk memastikan struktur data benar
+      if (Array.isArray(data.products) && Array.isArray(data.members) && Array.isArray(data.transactions)) {
+        
+        // Minta konfirmasi terakhir sebelum menimpa data
+        if (window.confirm("Anda yakin ingin mengganti SEMUA data saat ini dengan data dari file? Tindakan ini tidak dapat diurungkan.")) {
+          setProducts(data.products);
+          setMembers(data.members);
+          setTransactions(data.transactions);
+          alert("Data berhasil dipulihkan dari file backup!");
+          return true;
+        }
+      } else {
+        alert("Struktur data di dalam file JSON tidak valid. Pastikan file tersebut adalah file backup yang benar.");
+        return false;
+      }
+    } catch (error) {
+      console.error("Gagal mem-parsing file JSON:", error);
+      alert("File JSON tidak valid atau rusak. Gagal memulihkan data.");
+      return false;
+    }
+    return false; // Return false jika user membatalkan konfirmasi
   };
 
-
   const state = {
-    products,
-    members,
-    transactions,
-    cart,
-    isLoaded,
-    addProduct,
-    updateProduct,
-    deleteProduct,
-    addMember,
+    products, members, transactions, cart, isLoaded,
+    addProduct, updateProduct, deleteProduct,
+    addMember, updateMember, deleteMember,
     addTransaction,
-    addToCart,
-    removeFromCart,
-    clearCart,
-    resetData,
-    getBackupData,
+    addToCart, removeFromCart, clearCart,
+    resetData, getBackupData, restoreData,
   };
 
   return <AppContext.Provider value={state}>{children}</AppContext.Provider>;

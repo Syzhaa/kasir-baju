@@ -1,12 +1,17 @@
+// src/pages/pengaturan.js
+import { useRef } from 'react'; // Import useRef
 import { useAppContext } from '../context/AppContext';
-import Papa from 'papaparse';
 import styles from '../styles/Pengaturan.module.css';
 
 export default function PengaturanPage() {
-  const { resetData, getBackupData, transactions, products, members } = useAppContext();
+  // Ambil fungsi restoreData dari context
+  const { resetData, getBackupData, restoreData } = useAppContext();
+  
+  // useRef untuk mengakses input file yang tersembunyi
+  const fileInputRef = useRef(null);
 
   const handleDownloadBackup = () => {
-    constjsonData = getBackupData();
+    const jsonData = getBackupData();
     const blob = new Blob([jsonData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -17,33 +22,33 @@ export default function PengaturanPage() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
+  // Fungsi untuk memicu klik pada input file
+  const handleUploadClick = () => {
+    fileInputRef.current.click();
+  };
+
+  // Fungsi yang berjalan saat pengguna memilih file
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+      return; // Tidak ada file yang dipilih
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const fileContent = e.target.result;
+      restoreData(fileContent);
+    };
+    reader.onerror = () => {
+        alert('Gagal membaca file.');
+    };
+    reader.readAsText(file);
+
+    // Reset input file agar bisa upload file yang sama lagi jika perlu
+    event.target.value = null;
+  };
   
-  const handleExportCSV = () => {
-    const dataToExport = transactions.map(t => {
-        const member = members.find(m => m.id === t.memberId);
-        return {
-            'ID Transaksi': t.id,
-            'Tanggal': new Date(t.date).toLocaleString('id-ID'),
-            'Produk': t.items.map(i => `${i.name} (${i.size}) x${i.quantity}`).join(', '),
-            'Status Member': member ? 'Member' : 'Non-Member',
-            'Nama Member': member ? member.name : '-',
-            'Diskon': t.discount,
-            'Total': t.total,
-        }
-    });
-
-    const csv = Papa.unparse(dataToExport);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `laporan_transaksi_${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
   return (
     <div>
       <h1>Pengaturan & Data</h1>
@@ -53,15 +58,30 @@ export default function PengaturanPage() {
           <button onClick={handleDownloadBackup}>
             Download Backup (JSON)
           </button>
-          <button onClick={handleExportCSV} className="button-secondary">
-            Ekspor Transaksi (CSV)
+          
+          {/* Tombol baru untuk Restore/Upload */}
+          <button onClick={handleUploadClick} className="button-secondary">
+            Restore dari Backup (JSON)
           </button>
+
+          {/* Input file yang sebenarnya, tapi disembunyikan */}
+          <input 
+            type="file" 
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".json"
+            style={{ display: 'none' }} 
+          />
+          
           <button onClick={resetData} className="button-danger">
             Reset Semua Data
           </button>
         </div>
         <p className={styles.warning}>
-          <strong>Perhatian:</strong> "Reset Semua Data" akan menghapus seluruh produk, member, dan riwayat transaksi secara permanen dari browser ini.
+          <strong>Perhatian:</strong>
+          <br/>- Fitur "Restore" akan **MENGGANTI TOTAL** semua data saat ini.
+          <br/>- Fitur "Reset" akan **MENGHAPUS TOTAL** semua data.
+          <br/>Selalu backup data Anda terlebih dahulu jika ragu.
         </p>
       </div>
     </div>

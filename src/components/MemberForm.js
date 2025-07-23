@@ -1,55 +1,73 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import emailjs from '@emailjs/browser';
 import styles from '../styles/Form.module.css';
 
-export default function MemberForm({ onFormSubmit }) {
-  const { addMember } = useAppContext();
-  const [member, setMember] = useState({ name: '', phone: '', email: '' });
+const initialMember = { name: '', phone: '', email: '', discount: '10' };
+
+export default function MemberForm({ memberToEdit, onFormSubmit }) {
+  const { addMember, updateMember } = useAppContext();
+  const [member, setMember] = useState(initialMember);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (memberToEdit) {
+      setMember(memberToEdit);
+    } else {
+      setMember(initialMember);
+    }
+  }, [memberToEdit]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setMember(prev => ({ ...prev, [name]: value }));
   };
 
-  const sendWelcomeEmail = (newMember) => {
-    // Ganti dengan Service ID, Template ID, dan Public Key Anda dari EmailJS
-    const serviceID = 'service_iwb7oi7';
+  const sendWelcomeEmail = (newMemberData) => {
+    // Kredensial EmailJS Anda sudah dimasukkan di sini
+    const serviceID = 'service_da7c38e';
     const templateID = 'template_rs2dbf8';
     const publicKey = 'GQZtAAGesoeEnDW_Z';
 
+    // Pastikan key di sini (cth: 'nama', 'email') SAMA PERSIS
+    // dengan variabel di template EmailJS Anda (cth: {{nama}}, {{email}})
     const templateParams = {
-        nama: newMember.name,
-        email: newMember.email,
+        nama: newMemberData.name,
+        email: newMemberData.email,
     };
     
     emailjs.send(serviceID, templateID, templateParams, publicKey)
       .then((response) => {
          console.log('Email berhasil terkirim!', response.status, response.text);
+         alert("Member berhasil didaftarkan! Email notifikasi telah dikirim.");
       }, (err) => {
-         console.error('Gagal mengirim email.', err);
-         alert("Member berhasil didaftarkan, namun notifikasi email gagal dikirim.");
+         console.error('GAGAL MENGIRIM EMAIL:', err);
+         alert("Member berhasil didaftarkan, NAMUN notifikasi email GAGAL dikirim. Cek console browser untuk detail error.");
       });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    const newMember = addMember(member);
-    
-    // Kirim email jika email diisi
-    if (member.email) {
-      sendWelcomeEmail(newMember);
-    }
-    
-    alert(`Member ${member.name} berhasil didaftarkan!`);
-    setMember({ name: '', phone: '', email: '' });
-    setIsSubmitting(false);
 
-    if (onFormSubmit) {
-      onFormSubmit(newMember);
+    if (memberToEdit) {
+      updateMember(member);
+      alert(`Data member ${member.name} berhasil diupdate!`);
+      setIsSubmitting(false);
+      if (onFormSubmit) onFormSubmit();
+    } else {
+      const newMember = addMember(member);
+      
+      if (member.email) {
+        sendWelcomeEmail(newMember);
+      } else {
+        alert(`Member ${member.name} berhasil didaftarkan!`);
+      }
+      
+      // Reset form setelah proses selesai
+      setMember(initialMember);
+      setIsSubmitting(false);
+      if (onFormSubmit) onFormSubmit();
     }
   };
 
@@ -58,8 +76,24 @@ export default function MemberForm({ onFormSubmit }) {
       <input name="name" value={member.name} onChange={handleChange} placeholder="Nama Lengkap" required />
       <input name="phone" type="tel" value={member.phone} onChange={handleChange} placeholder="Nomor HP" required />
       <input name="email" type="email" value={member.email} onChange={handleChange} placeholder="Email (Opsional)" />
+      
+      <div className={styles.formGroup}>
+        <label htmlFor="discount">Diskon Member (%)</label>
+        <input 
+          id="discount"
+          name="discount" 
+          type="number" 
+          value={member.discount} 
+          onChange={handleChange} 
+          placeholder="Contoh: 10" 
+          min="0"
+          max="100"
+          required 
+        />
+      </div>
+
       <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Mendaftarkan...' : 'Daftarkan Member'}
+        {isSubmitting ? 'Menyimpan...' : (memberToEdit ? 'Update Member' : 'Daftarkan Member')}
       </button>
     </form>
   );

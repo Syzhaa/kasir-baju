@@ -1,103 +1,141 @@
-// src/pages/dashboard.js
+// src/pages/index.js
 import { useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import Link from 'next/link';
 import styles from '../styles/Dashboard.module.css';
 
-// Tentukan batas stok rendah di sini
-const LOW_STOCK_THRESHOLD = 5;
+// Import komponen chart dan daftarkan modul yang diperlukan
+import { Line, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
 
 export default function DashboardPage() {
-  const { products, members, transactions } = useAppContext();
+  const { products, transactions } = useAppContext();
 
-  // Memoize kalkulasi agar tidak dihitung ulang setiap render
-  const summary = useMemo(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    const thisMonth = new Date().toISOString().slice(0, 7);
+  // --- Kalkulasi Statistik KPI ---
+  const dailyStats = useMemo(() => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayTransactions = transactions.filter(t => t.date.startsWith(todayStr));
 
-    const revenueToday = transactions
-      .filter(t => t.date.startsWith(today))
-      .reduce((acc, curr) => acc + curr.total, 0);
-
-    const revenueThisMonth = transactions
-      .filter(t => t.date.startsWith(thisMonth))
-      .reduce((acc, curr) => acc + curr.total, 0);
-
-    return { revenueToday, revenueThisMonth };
+    const revenueToday = todayTransactions.reduce((acc, curr) => acc + curr.total, 0);
+    const itemsSoldToday = todayTransactions.reduce((acc, curr) => acc + curr.items.reduce((itemAcc, item) => itemAcc + item.quantity, 0), 0);
+    const memberTransactions = todayTransactions.filter(t => t.memberId).length;
+    const nonMemberTransactions = todayTransactions.filter(t => !t.memberId).length;
+    
+    return {
+      revenueToday,
+      itemsSoldToday,
+      memberTransactions,
+      nonMemberTransactions,
+    };
   }, [transactions]);
 
-  const lowStockProducts = useMemo(() => {
-    return products.filter(p => 
-      Object.values(p.stock).some(qty => qty > 0 && qty <= LOW_STOCK_THRESHOLD)
-    );
-  }, [products]);
+  // --- Persiapan Data untuk Chart Tren 7 Hari ---
+  const salesTrendData = useMemo(() => {
+    const labels = [];
+    const data = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      labels.push(d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' }));
+      
+      const dateStr = d.toISOString().slice(0, 10);
+      const dailyRevenue = transactions
+        .filter(t => t.date.startsWith(dateStr))
+        .reduce((acc, curr) => acc + curr.total, 0);
+      data.push(dailyRevenue);
+    }
+    
+    return {
+      labels,
+      datasets: [{
+        label: 'Pendapatan',
+        data,
+        borderColor: 'rgb(53, 162, 235)',
+        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+      }],
+    };
+  }, [transactions]);
 
-  const outOfStockProducts = useMemo(() => {
-    return products.filter(p => 
-      Object.values(p.stock).every(qty => qty === 0)
-    );
-  }, [products]);
+  // --- Persiapan Data untuk Chart 5 Produk Terlaris ---
+  const topProductsData = useMemo(() => {
+    const productSales = {};
+    transactions.forEach(t => {
+      t.items.forEach(item => {
+        productSales[item.productId] = (productSales[item.productId] || 0) + item.quantity;
+      });
+    });
+
+    const sortedProducts = Object.entries(productSales)
+      .sort(([, qtyA], [, qtyB]) => qtyB - qtyA)
+      .slice(0, 5);
+      
+    const labels = sortedProducts.map(([productId]) => {
+      const product = products.find(p => p.id === productId);
+      return product ? product.name : 'Produk Dihapus';
+    });
+    const data = sortedProducts.map(([, qty]) => qty);
+
+    return {
+      labels,
+      datasets: [{
+        label: 'Jumlah Terjual',
+        data,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.5)',
+          'rgba(54, 162, 235, 0.5)',
+          'rgba(255, 206, 86, 0.5)',
+          'rgba(75, 192, 192, 0.5)',
+          'rgba(153, 102, 255, 0.5)',
+        ],
+      }],
+    };
+  }, [transactions, products]);
 
   return (
     <div>
-      <h1>Dashboard</h1>
+      <h1>Dashboard Penjualan</h1>
       
-      {/* Bagian Ringkasan */}
-      <div className={styles.summaryGrid}>
-        <div className={`${styles.card} ${styles.cardPrimary}`}>
-          <h3>Total Produk</h3>
-          <p>{products.length}</p>
-        </div>
-        <div className={`${styles.card} ${styles.cardSecondary}`}>
-          <h3>Total Member</h3>
-          <p>{members.length}</p>
-        </div>
-        <div className={`${styles.card} ${styles.cardSuccess}`}>
-          <h3>Pendapatan Hari Ini</h3>
-          <p>Rp {summary.revenueToday.toLocaleString('id-ID')}</p>
-        </div>
-        <div className={`${styles.card} ${styles.cardSuccess}`}>
-          <h3>Pendapatan Bulan Ini</h3>
-          <p>Rp {summary.revenueThisMonth.toLocaleString('id-ID')}</p>
-        </div>
+      {/* Bagian Statistik KPI */}
+      <div className={styles.kpiGrid}>
+        <div className="card"><h3>Penjualan Hari Ini</h3><p>Rp {dailyStats.revenueToday.toLocaleString('id-ID')}</p></div>
+        <div className="card"><h3>Total Jenis Produk</h3><p>{products.length}</p></div>
+        <div className="card"><h3>Baju Terjual Hari Ini</h3><p>{dailyStats.itemsSoldToday} Pcs</p></div>
+        <div className="card"><h3>Pembelian (Member)</h3><p>{dailyStats.memberTransactions} Transaksi</p></div>
+        <div className="card"><h3>Pembelian (Non-Member)</h3><p>{dailyStats.nonMemberTransactions} Transaksi</p></div>
       </div>
 
-      {/* Bagian Peringatan Stok */}
-      <div className={styles.alertsGrid}>
-        <div className={`${styles.card} ${styles.cardWarning}`}>
-          <h3>⚠️ Stok Hampir Habis (≤ {LOW_STOCK_THRESHOLD})</h3>
-          {lowStockProducts.length > 0 ? (
-            <ul>
-              {lowStockProducts.map(p => (
-                <li key={p.id}>
-                  <Link href="/produk">{p.name}</Link> - 
-                  (Ukuran: {Object.entries(p.stock)
-                    .filter(([_, qty]) => qty > 0 && qty <= LOW_STOCK_THRESHOLD)
-                    .map(([size, qty]) => `${size}: ${qty}`)
-                    .join(', ')})
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Semua stok aman.</p>
-          )}
+      {/* Bagian Chart */}
+      <div className={styles.chartsGrid}>
+        <div className="card">
+          <h3>Tren Penjualan 7 Hari Terakhir</h3>
+          <Line options={{ responsive: true }} data={salesTrendData} />
         </div>
-        <div className={`${styles.card} ${styles.cardDanger}`}>
-          <h3>🚫 Stok Habis</h3>
-           {outOfStockProducts.length > 0 ? (
-            <ul>
-              {outOfStockProducts.map(p => (
-                <li key={p.id}>
-                  <Link href="/produk">{p.name}</Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Tidak ada produk yang stoknya habis.</p>
-          )}
+        <div className="card">
+          <h3>5 Produk Terlaris</h3>
+          <Bar options={{ responsive: true, indexAxis: 'y' }} data={topProductsData} />
         </div>
       </div>
-
     </div>
   );
 }
