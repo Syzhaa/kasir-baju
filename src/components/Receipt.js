@@ -3,7 +3,8 @@ import { useAppContext } from '../context/AppContext';
 import styles from '../styles/Receipt.module.css';
 
 const Receipt = React.forwardRef(({ transaction }, ref) => {
-  const { products, members } = useAppContext();
+  // Call the hook once at the top and get everything you need.
+  const { products, members, currentUser } = useAppContext();
 
   // 1. Validasi data utama untuk mencegah error
   if (!transaction || !Array.isArray(transaction.items)) {
@@ -31,7 +32,8 @@ const Receipt = React.forwardRef(({ transaction }, ref) => {
         <p><span>No. Transaksi:</span> {transaction.id || 'N/A'}</p>
         <p><span>Tanggal:</span> {transactionDate}</p>
         {member && <p><span>Member:</span> {member.name || 'N/A'}</p>}
-        <p><span>Kasir:</span> {useAppContext().currentUser?.username || 'Admin'}</p>
+        {/* Use the currentUser variable declared at the top */}
+        <p><span>Kasir:</span> {currentUser?.username || 'Admin'}</p>
         <p><span>Pembayaran:</span> {transaction.paymentMethod || 'Tunai'}</p>
       </div>
 
