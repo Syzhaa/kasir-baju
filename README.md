@@ -161,4 +161,153 @@ Proyek ini menggunakan lisensi bebas untuk penggunaan pribadi dan edukasi. Silak
 
 Pull Request dan masukan sangat diterima! Jangan lupa untuk ⭐ repository ini jika Anda merasa terbantu.
 
+Berikut adalah versi lengkap untuk bagian **Diagram Desain Aplikasi Kasir** dalam format `README.md` GitHub. Semua diagram sudah disusun dengan sintaks dari **Mermaid.js**, yang didukung oleh GitHub untuk pratinjau otomatis. Kamu cukup menempelkan bagian ini ke bawah `README.md` milikmu.
+
+---
+
+## 🧠 Diagram Desain Aplikasi Kasir
+
+Dokumen ini berisi kumpulan diagram desain konseptual yang menggambarkan struktur data, arsitektur perangkat lunak, dan alur kerja utama dari aplikasi kasir.
+
+---
+
+### 1. 🗃️ Entity-Relationship Diagram (ERD)
+
+ERD ini memvisualisasikan entitas data utama dan hubungan antar entitas tersebut:
+
+```mermaid
+erDiagram
+    PRODUK {
+        string id PK
+        string nama
+        string deskripsi
+        int harga
+        json stok "Contoh: {S:10, M:15}"
+    }
+    MEMBER {
+        string id PK
+        string nama
+        string no_hp
+        string email
+        int diskon_persen
+    }
+    TRANSAKSI {
+        string id PK
+        datetime tanggal
+        int total_harga
+        int total_diskon
+        string member_id FK
+    }
+    DETAIL_TRANSAKSI {
+        string produk_id FK
+        string transaksi_id FK
+        string ukuran
+        int jumlah
+        int harga_satuan
+    }
+    PRODUK ||--o{ DETAIL_TRANSAKSI : "memiliki"
+    TRANSAKSI ||--|{ DETAIL_TRANSAKSI : "terdiri dari"
+    MEMBER }o--|| TRANSAKSI : "melakukan"
+````
+
+---
+
+### 2. 🧩 Class Diagram
+
+Class Diagram ini memodelkan struktur kode aplikasi, menunjukkan kelas-kelas utama, atributnya, serta metode (fungsi) yang dimilikinya:
+
+```mermaid
+classDiagram
+    class AppContext {
+        +List~Produk~ products
+        +List~Member~ members
+        +List~Transaksi~ transactions
+        +User currentUser
+        +addProduct(data)
+        +addMember(data)
+        +addTransaction(data)
+        +login(user, pass)
+        +logout()
+    }
+
+    class Produk {
+        -string id
+        -string nama
+        -int harga
+        -object stok
+    }
+
+    class Member {
+        -string id
+        -string nama
+        -int diskon
+    }
+
+    class Transaksi {
+        -string id
+        -datetime tanggal
+        -List~object~ items
+    }
+
+    class User {
+        -string id
+        -string username
+        -string hashedPassword
+    }
+
+    AppContext "1" -- "0..*" Produk : Mengelola
+    AppContext "1" -- "0..*" Member : Mengelola
+    AppContext "1" -- "0..*" Transaksi : Mengelola
+    AppContext "1" -- "0..*" User : Mengelola
+```
+
+---
+
+### 3. 🔄 Activity Diagram — Proses Transaksi Penjualan
+
+Activity Diagram ini menggambarkan alur kerja dari proses transaksi dari awal hingga selesai:
+
+```mermaid
+graph TD
+    A[Mulai] --> B{Pilih Produk & Ukuran}
+    B --> C[Masukkan Jumlah]
+    C --> D[Tambah ke Keranjang]
+    D --> E{Ada item lain?}
+    E -- Ya --> B
+    E -- Tidak --> F{Pilih Jenis Pelanggan}
+    F -- Non-Member --> J[Hitung Total Tanpa Diskon]
+    F -- Member --> G[Cari Data Member]
+    G --> H{Member Ditemukan?}
+    H -- Ya --> I[Terapkan Diskon & Hitung Total]
+    H -- Tidak --> K[Tampilkan Opsi Daftar Member Baru]
+    K --> G
+    I --> L[Selesaikan Transaksi]
+    J --> L
+    L --> M[Kurangi Stok Produk]
+    M --> N[Simpan Data Transaksi]
+    N --> O[Tampilkan Opsi Cetak Struk]
+    O --> P[Selesai]
+```
+
+---
+
+💡 **Catatan**: GitHub mendukung sintaks Mermaid secara otomatis dalam file Markdown, jadi Anda dapat melihat visualisasinya langsung saat membuka repositori di GitHub.
+
+---
+
+Butuh juga diagram **State Diagram** atau **Sequence Diagram** tambahan untuk bagian login atau cetak struk? Saya bisa bantu buatkan. Mau lanjut? 😊
+
+```
+
+---
+
+Jika kamu ingin, saya juga bisa:
+
+- Memecah diagram jadi file `.md` tersendiri
+- Membuat visual statis (gambar PNG/SVG)
+- Menambahkan link langsung ke kode (`AppContext`, `Transaksi`, dll)
+
+Mau lanjut ke bagian itu?
+```
+
 
