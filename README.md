@@ -58,7 +58,7 @@ Pastikan Anda sudah menginstal **Node.js versi 18 atau lebih baru**.
 ### 📥 Clone Repository Ini
 
 ```bash
-git clone https://github.com/kasir-baju.git
+git clone https://github.com/Syzhaa/kasir-baju.git
 ````
 
 
