@@ -1,8 +1,7 @@
-// src/components/Layout.js
 import { useState } from 'react';
-import { useRouter } from 'next/router'; // Import useRouter
+import { useRouter } from 'next/router';
 import Sidebar from './Sidebar';
-import TopBar from './Topbar'; // Import TopBar
+import TopBar from './Topbar'; // Pastikan 'B' besar di sini
 import styles from '../styles/Layout.module.css';
 
 const pageTitles = {
@@ -22,7 +21,7 @@ const Layout = ({ children }) => {
   const title = pageTitles[router.pathname] || 'Aplikasi Kasir';
 
   return (
-    <div className={styles.layoutContainer}>
+    <div className={styles.layoutContainer} suppressHydrationWarning>
       <button className={styles.hamburger} onClick={() => setSidebarOpen(!isSidebarOpen)}>&#9776;</button>
       
       <div className={`${styles.sidebarWrapper} ${isSidebarOpen ? styles.open : ''}`}>
@@ -32,7 +31,7 @@ const Layout = ({ children }) => {
       {isSidebarOpen && <div className={styles.overlay} onClick={() => setSidebarOpen(false)}></div>}
       
       <div className={styles.contentWrapper}>
-        <TopBar pageTitle={title} /> {/* Tambahkan TopBar di sini */}
+        <TopBar pageTitle={title} />
         <main className={styles.mainContent}>
           {children}
         </main>
