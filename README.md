@@ -19,7 +19,7 @@ Aplikasi kasir dan katalog penjualan berbasis web yang **modern**, **ringan**, d
   Halaman kasir lengkap dengan keranjang belanja, pencarian member, dan diskon dinamis.
 
 - **Sistem Member**  
-  Kelola data member dengan diskon yang bisa diatur manual per anggota.
+  Kelola data member dengan diskon yang bisa diatur manual per anggota dan email pendaftaran di kirim dengan emailjs.
 
 - **Laporan Penjualan**  
   Filter laporan berdasarkan harian, bulanan, atau tahunan, lengkap dengan **chart visual** dan **paginasi**.
@@ -73,7 +73,49 @@ cd kasir-baju
 ```bash
 npm install
 ```
+## 📧 Konfigurasi EmailJS
 
+Aplikasi ini menggunakan [EmailJS](https://www.emailjs.com/) untuk mengirim email saat mendaftarkan member.
+
+### Langkah Setup:
+
+1. **Daftar di EmailJS**
+   [https://www.emailjs.com](https://www.emailjs.com)
+
+2. **Buat Email Service**
+
+   * Tambah layanan (Gmail, Yahoo, dsb)
+   * Simpan **Service ID**
+
+3. **Buat Template**
+
+   * Tambahkan variabel seperti `name`, `email`, `discount`
+   * Simpan **Template ID**
+
+4. **Dapatkan Public Key**
+
+   * Bisa ditemukan di halaman API Key
+
+5. **Edit File `components/MemberForm.js`**
+   Buka file `components/MemberForm.js`, dan cari bagian kode seperti ini:
+
+   ```js
+   const serviceID = 'your_service_id';
+   const templateID = 'your_template_id';
+   const publicKey = 'your_public_key';
+   ```
+
+   Gantilah `your_service_id`, `your_template_id`, dan `your_public_key` dengan nilai dari EmailJS milik Anda.
+
+   **Contoh:**
+
+   ```js
+   const serviceID = 'service_xxx123';
+   const templateID = 'template_abc456';
+   const publicKey = 'xxx_public_key_789';
+   ```
+
+---
 ### ▶️ Jalankan Aplikasi
 
 ```bash
@@ -117,3 +159,5 @@ Proyek ini menggunakan lisensi bebas untuk penggunaan pribadi dan edukasi. Silak
 ## ❤️ Kontribusi
 
 Pull Request dan masukan sangat diterima! Jangan lupa untuk ⭐ repository ini jika Anda merasa terbantu.
+
+
