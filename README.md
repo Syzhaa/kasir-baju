@@ -1,8 +1,4 @@
-Berikut adalah versi yang sudah dirapikan dan diformat sebagai **README.md** untuk GitHub proyek **Aplikasi Kasir Toko Baju (Next.js & LocalStorage)**:
 
----
-
-````markdown
 # 🧾 Aplikasi Kasir Toko Baju (Next.js & LocalStorage)
 
 Aplikasi kasir dan katalog penjualan berbasis web yang **modern**, **ringan**, dan **sepenuhnya offline**. Dibangun menggunakan **Next.js** dan **CSS Modules**, dengan **LocalStorage** sebagai satu-satunya media penyimpanan.
@@ -121,10 +117,3 @@ Proyek ini menggunakan lisensi bebas untuk penggunaan pribadi dan edukasi. Silak
 ## ❤️ Kontribusi
 
 Pull Request dan masukan sangat diterima! Jangan lupa untuk ⭐ repository ini jika Anda merasa terbantu.
-
-```
-
----
-
-Silakan simpan file ini dengan nama `README.md` di root proyek GitHub Anda. Jika ingin, saya juga bisa bantu buatkan file tersebut atau bantu upload ke repo GitHub Anda.
-```
