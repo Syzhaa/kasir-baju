@@ -1,41 +1,99 @@
+/* --- Style untuk Tampilan di Layar --- */
 .receipt {
+  max-width: 320px;
+    margin: 0 auto;
+    padding: 15px;
   font-family: 'Courier New', Courier, monospace;
-  width: 300px;
-  padding: 15px;
-  margin: 0 auto;
   background: white;
-  color: black;
-  border: 1px dashed #333;
+  border: 1px solid #ddd;
+    border-radius: 8px;
+    color: #333;
 }
 
-.receipt h2, .receipt p {
+.header {
   text-align: center;
-  margin: 5px 0;
+  margin-bottom: 10px;
 }
-.receipt hr {
+.header h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.header p {
+  margin: 2px 0;
+  font-size: 0.8em;
+}
+
+.hr {
   border: none;
-  border-top: 1px dashed #333;
+  border-top: 1px dashed #999;
   margin: 10px 0;
 }
-.receipt table {
+.details p,
+.totals p {
+  display: flex;
+  justify-content: space-between;
+  margin: 4px 0;
+  font-size: 0.9em;
+}
+
+.table {
   width: 100%;
   border-collapse: collapse;
+  margin: 10px 0;
+    font-size: 0.9em;
 }
-.receipt th, .receipt td {
+.table th,
+.table td {
+  padding: 4px 2px;
   text-align: left;
-  padding: 2px;
 }
-.receipt th:nth-child(2), .receipt td:nth-child(2) { text-align: center; }
-.receipt th:nth-child(3), .receipt td:nth-child(3) { text-align: right; }
-.receipt th:nth-child(4), .receipt td:nth-child(4) { text-align: right; }
+.table th:nth-child(2),
+.table td:nth-child(2) {
+  text-align: center;
+}
 
-.totals {
+.table th:nth-child(3),
+.table td:nth-child(3),
+.table th:nth-child(4),
+.table td:nth-child(4) {
   text-align: right;
 }
-.totals p {
-    text-align: right;
+.totals .grandTotal span,
+.totals .grandTotal {
+  font-weight: bold;
+  font-size: 1.1em;
 }
+
 .footer {
   text-align: center;
   margin-top: 15px;
+  font-size: 0.8em;
+  }
+  
+  /* --- Style KHUSUS untuk Cetak --- */
+  @media print {
+    @page {
+      margin: 4mm;
+      /* Margin halaman cetak */
+    }
+  
+    .receipt {
+      width: 72mm;
+      /* Lebar konten untuk kertas thermal 80mm */
+      max-width: 72mm;
+      padding: 0;
+      margin: 0;
+      font-size: 9pt;
+      /* Ukuran font ideal untuk struk */
+      color: #000;
+      background-color: #fff;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+  
+    .hr {
+      border-top: 1px dashed #000;
+    }
 }

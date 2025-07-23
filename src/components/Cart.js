@@ -10,70 +10,37 @@ export default function Cart() {
   const [customerType, setCustomerType] = useState('Non-Member');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('Tunai');
   const [showNewMemberForm, setShowNewMemberForm] = useState(false);
   const [lastTransaction, setLastTransaction] = useState(null);
   
   const receiptRef = useRef(null);
 
-  // Fixed: Changed from 'content' to 'contentRef' and added pageStyle
+  // PERBAIKAN: gunakan contentRef tanpa arrow function
   const handlePrint = useReactToPrint({
     contentRef: receiptRef,
+    documentTitle: `Struk-${lastTransaction?.id || 'receipt'}`,
     pageStyle: `
       @page {
-        size: 80mm auto; /* Thermal printer 80mm width, auto height */
+        size: 80mm auto;
         margin: 0;
-        padding: 0;
       }
       @media print {
         body {
           margin: 0;
-          padding: 0;
           -webkit-print-color-adjust: exact;
-          color-adjust: exact;
-        }
-        .receipt-container {
-          width: 80mm;
-          max-width: 80mm;
-          font-size: 12px;
-          font-family: 'Courier New', monospace;
-          line-height: 1.2;
-          padding: 2mm;
-          margin: 0;
-        }
-        .receipt-header {
-          text-align: center;
-          margin-bottom: 3mm;
-        }
-        .receipt-item {
-          font-size: 11px;
-          margin: 1mm 0;
-        }
-        .receipt-total {
-          border-top: 1px dashed #000;
-          padding-top: 2mm;
-          margin-top: 2mm;
-          font-weight: bold;
         }
       }
     `,
-    onBeforeGetContent: () => {
-      // Ensure content is ready before printing
-      return Promise.resolve();
-    },
-    onAfterPrint: () => {
-      console.log('Print completed');
+    onPrintError: (errorLocation, error) => {
+      console.error('Print Error:', errorLocation, error);
+      alert('Terjadi kesalahan saat mencetak. Silakan coba lagi.');
     }
   });
 
   const handleCompleteTransaction = () => {
-    if (cart.length === 0) {
-      alert("Keranjang masih kosong!");
-      return;
-    }
-    if (customerType === 'Member' && !selectedMember) {
-        alert("Pilih member terlebih dahulu atau daftarkan member baru.");
-        return;
-    }
+    if (cart.length === 0) { alert("Keranjang masih kosong!"); return; }
+    if (customerType === 'Member' && !selectedMember) { alert("Pilih member terlebih dahulu."); return; }
 
     const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const memberDiscountPercent = selectedMember ? selectedMember.discount : 0;
@@ -81,13 +48,18 @@ export default function Cart() {
     const total = subtotal - discount;
 
     const transactionData = {
-        items: cart, member: selectedMember, total: total, discount: discount
+        items: cart,
+        member: selectedMember,
+        total: total,
+        discount: discount,
+        paymentMethod: paymentMethod,
     };
     
     const newTransaction = addTransaction(transactionData);
     setLastTransaction(newTransaction);
     setSelectedMember(null);
     setSearchTerm('');
+    setPaymentMethod('Tunai'); // Reset ke default
   };
 
   const handleSelectMember = (member) => {
@@ -95,10 +67,7 @@ export default function Cart() {
     setSearchTerm('');
   };
 
-  const filteredMembers = searchTerm
-    ? members.filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase()) || m.phone.includes(searchTerm))
-    : [];
-  
+  const filteredMembers = searchTerm ? members.filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase()) || m.phone.includes(searchTerm)) : [];
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const memberDiscountPercent = selectedMember ? selectedMember.discount : 0;
   const discount = customerType === 'Member' && selectedMember ? (subtotal * memberDiscountPercent) / 100 : 0;
@@ -127,14 +96,12 @@ export default function Cart() {
               ))}
             </ul>
           )}
-
           <div className={styles.summary}>
             <p>Subtotal: <span>Rp {subtotal.toLocaleString('id-ID')}</span></p>
             {discount > 0 && <p className={styles.discount}>Diskon Member ({memberDiscountPercent}%): <span>- Rp {discount.toLocaleString('id-ID')}</span></p>}
             <hr />
             <p className={styles.total}>Total: <span>Rp {total.toLocaleString('id-ID')}</span></p>
           </div>
-
           <div className={styles.customerSection}>
             <label>Jenis Pelanggan:</label>
             <select value={customerType} onChange={(e) => {setCustomerType(e.target.value); setSelectedMember(null)}}>
@@ -142,28 +109,29 @@ export default function Cart() {
               <option>Member</option>
             </select>
           </div>
-          
+          <div className={styles.paymentSection}>
+            <label>Metode Pembayaran:</label>
+            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+              <option value="Tunai">Tunai</option>
+              <option value="Transfer Bank">Transfer Bank</option>
+              <option value="E-Wallet">E-Wallet</option>
+              <option value="Kartu Kredit">Kartu Kredit</option>
+              <option value="Kartu Debit">Kartu Debit</option>
+            </select>
+          </div>
           {customerType === 'Member' && (
             <div className={styles.memberSearch}>
               {selectedMember ? (
-                <div className={styles.selectedMember}>
-                  <p>Member: {selectedMember.name} ({selectedMember.phone})</p>
-                  <button onClick={() => setSelectedMember(null)} className="button-secondary">Ganti Member</button>
-                </div>
+                <div className={styles.selectedMember}><p>Member: {selectedMember.name} ({selectedMember.phone})</p><button onClick={() => setSelectedMember(null)} className="button-secondary">Ganti</button></div>
               ) : (
                 <>
                   <input type="text" placeholder="Cari member (nama/no. HP)" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                  {filteredMembers.length > 0 && searchTerm && (
-                    <ul className={styles.memberDropdown}>
-                      {filteredMembers.map(m => (<li key={m.id} onClick={() => handleSelectMember(m)}>{m.name} - {m.phone}</li>))}
-                    </ul>
-                  )}
-                  <button onClick={() => setShowNewMemberForm(true)} style={{marginTop: '10px'}}>+ Daftarkan Member Baru</button>
+                  {filteredMembers.length > 0 && searchTerm && (<ul className={styles.memberDropdown}>{filteredMembers.map(m => (<li key={m.id} onClick={() => handleSelectMember(m)}>{m.name} - {m.phone}</li>))}</ul>)}
+                  <button onClick={() => setShowNewMemberForm(true)} style={{marginTop: '10px'}}>+ Daftarkan Member</button>
                 </>
               )}
             </div>
           )}
-
           {showNewMemberForm && (
             <div className={styles.modal}>
               <div className={`${styles.modalContent} card`}>
@@ -173,20 +141,13 @@ export default function Cart() {
               </div>
             </div>
           )}
-
           <div className={styles.actions}>
             <button onClick={handleCompleteTransaction} className={styles.checkoutBtn} disabled={cart.length === 0}>Selesaikan Transaksi</button>
-            <button onClick={clearCart} className="button-danger">Kosongkan Keranjang</button>
+            <button onClick={clearCart} className="button-danger">Kosongkan</button>
           </div>
         </>
       )}
-
-      {/* Komponen struk hanya di-render jika 'lastTransaction' ada isinya */}
-      {lastTransaction && (
-        <div className={styles.printSource}>
-          <Receipt ref={receiptRef} transaction={lastTransaction} />
-        </div>
-      )}
+      {lastTransaction && (<div className={styles.printSource}><Receipt ref={receiptRef} transaction={lastTransaction} /></div>)}
     </div>
   );
 }

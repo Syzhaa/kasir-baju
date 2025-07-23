@@ -120,3 +120,19 @@
     justify-content: center;
     gap: 10px;
 }
+/* Tambahkan ini di paling bawah src/styles/Cart.module.css */
+.paymentSection {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.paymentSection label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.paymentSection select {
+  width: 100%;
+}

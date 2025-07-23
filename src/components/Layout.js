@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Sidebar from './Sidebar';
-import TopBar from './TopBar'; // Pastikan 'B' besar di sini
+import TopBar from './TopBar';
 import styles from '../styles/Layout.module.css';
 
 const pageTitles = {

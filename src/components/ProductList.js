@@ -1,12 +1,12 @@
-// src/components/ProductList.js
 import { useAppContext } from '../context/AppContext';
 import styles from '../styles/List.module.css';
 
-export default function ProductList({ products, onEdit }) {
+// 1. Terima 'nomorAwal' sebagai prop baru
+export default function ProductList({ products, onEdit, nomorAwal = 0 }) {
   const { deleteProduct } = useAppContext();
 
   if (!products || products.length === 0) {
-    return <p>Belum ada produk. Silakan tambahkan produk baru di form di atas.</p>;
+    return <p>Belum ada produk untuk halaman ini.</p>;
   }
 
   return (
@@ -24,7 +24,8 @@ export default function ProductList({ products, onEdit }) {
         <tbody>
           {products.map((product, index) => (
             <tr key={product.id}>
-              <td>{index + 1}</td>
+              {/* 2. Gunakan 'nomorAwal' untuk penomoran yang benar */}
+              <td>{nomorAwal + index + 1}</td>
               <td>{product.name}</td>
               <td>Rp {Number(product.price).toLocaleString('id-ID')}</td>
               <td>
