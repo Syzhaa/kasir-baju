@@ -1,24 +1,20 @@
+// src/components/ProductForm.js
 import { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import styles from '../styles/Form.module.css';
 
 const initialStock = { S: 0, M: 0, L: 0, XL: 0, XXL: 0 };
+const initialProduct = { name: '', description: '', price: '', stock: initialStock };
 
 export default function ProductForm({ productToEdit, onFormSubmit }) {
   const { addProduct, updateProduct } = useAppContext();
-  const [product, setProduct] = useState({
-    name: '',
-    description: '',
-    price: '',
-    imageUrl: '',
-    stock: initialStock
-  });
+  const [product, setProduct] = useState(initialProduct);
 
   useEffect(() => {
     if (productToEdit) {
       setProduct(productToEdit);
     } else {
-      setProduct({ name: '', description: '', price: '', imageUrl: '', stock: initialStock });
+      setProduct(initialProduct);
     }
   }, [productToEdit]);
 
@@ -48,7 +44,7 @@ export default function ProductForm({ productToEdit, onFormSubmit }) {
       addProduct(product);
     }
 
-    setProduct({ name: '', description: '', price: '', imageUrl: '', stock: initialStock });
+    setProduct(initialProduct);
     if(onFormSubmit) onFormSubmit();
   };
 
@@ -57,7 +53,6 @@ export default function ProductForm({ productToEdit, onFormSubmit }) {
       <input name="name" value={product.name} onChange={handleChange} placeholder="Nama Produk" required />
       <textarea name="description" value={product.description} onChange={handleChange} placeholder="Deskripsi"></textarea>
       <input name="price" type="number" value={product.price} onChange={handleChange} placeholder="Harga (Rp)" required />
-      <input name="imageUrl" value={product.imageUrl} onChange={handleChange} placeholder="URL Gambar Produk" />
       
       <fieldset className={styles.fieldset}>
         <legend>Stok per Ukuran</legend>

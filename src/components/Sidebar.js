@@ -1,10 +1,10 @@
 // src/components/Sidebar.js
 import Link from 'next/link';
-import { useRouter } from 'next/router'; // Import useRouter
-import styles from '../styles/Sidebar.module.css'; // Path CSS sudah diubah
+import { useRouter } from 'next/router';
+import styles from '../styles/Sidebar.module.css';
 
 const Sidebar = () => {
-  const router = useRouter(); // Gunakan hook
+  const router = useRouter();
 
   return (
     <aside className={styles.sidebar}>
@@ -12,9 +12,9 @@ const Sidebar = () => {
         <Link href="/">Kasir Toko Baju</Link>
       </div>
       <nav className={styles.navLinks}>
-        {/* Cek jika path saat ini cocok dengan href, lalu tambahkan class 'active' */}
+        {/* Link Katalog diubah menjadi Dashboard */}
         <Link href="/" className={router.pathname === "/" ? styles.active : ""}>
-          Katalog
+          Dashboard 
         </Link>
         <Link href="/produk" className={router.pathname === "/produk" ? styles.active : ""}>
           Produk

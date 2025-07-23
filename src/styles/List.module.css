@@ -1,42 +1,71 @@
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+/* src/styles/List.module.css */
+
+.tableContainer {
+    overflow-x: auto;
+    /* Agar tabel bisa di-scroll horizontal di layar kecil */
 }
 
-.item {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 10px;
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    /* Menghilangkan spasi antar border */
+    margin-top: 10px;
+}
+
+.table th,
+.table td {
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
 }
 
-.image {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: var(--border-radius);
+.table thead {
+    background-color: #f8f9fa;
+    /* Warna latar header */
 }
 
-.details {
-  flex-grow: 1;
+.table th {
+    font-weight: 600;
 }
 
-.details p {
-  margin: 5px 0;
-  color: #666;
+.table tbody tr:hover {
+    background-color: #f1f3f5;
+    /* Warna saat baris di-hover */
 }
 
 .stockInfo {
   display: flex;
-  gap: 10px;
-  font-size: 0.8em;
-  color: #888;
+gap: 15px;
+    flex-wrap: wrap;
+    /* Agar stok tetap rapi di layar kecil */
+}
+
+.stockInfo span {
+    font-size: 0.9em;
+    white-space: nowrap;
+    /* Mencegah tulisan "size: qty" terpotong */
 }
 
 .actions {
   display: flex;
   gap: 10px;
+justify-content: center;
 }
+/* Penyesuaian lebar kolom (opsional, tapi membuat rapi) */
+.table th:first-child {
+    width: 5%;
+    text-align: center;
+}
+
+/* No. */
+.table td:first-child {
+    text-align: center;
+}
+
+.table th:last-child {
+    width: 18%;
+    text-align: center;
+}
+
+/* Aksi */
