@@ -89,7 +89,8 @@ Aplikasi ini menggunakan [EmailJS](https://www.emailjs.com/) untuk mengirim emai
 
 3. **Buat Template**
 
-   * Tambahkan variabel seperti `name`, `email`, `discount`
+   * Tambahkan variabel seperti `name`, `email`
+     <img width="1470" height="554" alt="image" src="https://github.com/user-attachments/assets/50782513-f3f3-4518-b365-be6cba13c331" />
    * Simpan **Template ID**
 
 4. **Dapatkan Public Key**
